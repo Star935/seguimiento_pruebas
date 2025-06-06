@@ -1,4 +1,4 @@
-name: CI - Go Inventory App
+name: CI - Go Aplicacion de inventario
 
 on:
   push:
