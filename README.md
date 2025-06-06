@@ -15,7 +15,10 @@ Esta API permite la gestión de inventarios y objetos anidados usando Go, Echo y
 ```bash
 go run main.go
 ```
-
+### Ejecutar pruebas
+```bash
+go test ./...
+```
 ---
 
 ## Endpoints
