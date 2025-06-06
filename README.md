@@ -22,7 +22,7 @@ go test ./...
 ---
 
 ## Endpoints
-
+Se ejecutan todos en el http://localhost:8080
 ### Obtener todos los inventarios
 
 **GET** `/inventories`  
