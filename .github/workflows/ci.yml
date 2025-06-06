@@ -2,7 +2,7 @@ name: CI Go Inventory App
 
 on:
   push:
-    branches: [ develop, main ]
+    branches: [ master ]
   pull_request:
 
 jobs:
