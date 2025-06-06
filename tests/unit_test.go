@@ -58,7 +58,7 @@ func TestCreateInventory_MissingObjects(t *testing.T) {
 // Prueba 3: Objeto sin descripción
 func TestCreateInventory_ObjectMissingDescription(t *testing.T) {
 	// Construye un json de un nuevo inventario pero sin la descripcion del objeto
-	json := `{"name": "Inventario con objeto sin descripcion", "object": [{"name": "Objeto sin descripcion", "description": "g"}]}`
+	json := `{"name": "Inventario con objeto sin descripcion", "object": [{"name": "Objeto sin descripcion", "description": ""}]}`
 	c, rec := setupEchoTestContext(http.MethodPost, "/inventories", json)
 	
 	// Intenta guardar el inventario

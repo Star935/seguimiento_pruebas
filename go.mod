@@ -7,6 +7,7 @@ toolchain go1.23.10
 require (
 	github.com/labstack/echo/v4 v4.13.4
 	github.com/stretchr/testify v1.10.0
+	go.mongodb.org/mongo-driver v1.17.4
 	go.mongodb.org/mongo-driver/v2 v2.2.2
 )
 

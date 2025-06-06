@@ -8,19 +8,20 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"go.mongodb.org/mongo-driver/v2/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/v2/mongo"
 )
 
 // Estructura de objeto
 type Object struct {
-	ID	 		bson.ObjectID `json:"id,ompitempty" bson:"_id,ompitempty"`
+	ID	 		primitive.ObjectID `json:"id,ompitempty" bson:"_id,ompitempty"`
 	Name 		string 		  `json:"name" bson:"name"`
 	Description string 		  `json:"description" bson:"description"`
 }
 
 // Estructura de inventario
 type Inventory struct {
-	ID	 		bson.ObjectID `json:"id,ompitempty" bson:"_id,ompitempty"`
+	ID	 		primitive.ObjectID `json:"id,ompitempty" bson:"_id,ompitempty"`
 	Name 		string 		  `json:"name" bson:"name"`
 	Objects 	[]Object	  `json:"object" bson:"object"`
 }
@@ -64,7 +65,7 @@ func GetInventoryById(c echo.Context) error {
 	idParam := c.Param("id")
 
 	// Convierte el id en ObjectID
-	id, err := bson.ObjectIDFromHex(idParam)
+	id, err := primitive.ObjectIDFromHex(idParam)
 	// Valida si la operacion fue exitosa
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "Id invalido"})
@@ -93,62 +94,52 @@ func GetInventoryById(c echo.Context) error {
 
 // Crea un nuevo inventario
 func CreateInventory(c echo.Context) error {
-	// Instancia de Inventory
 	var inventory Inventory
 
-	// Almacena el body recuperado de la peticion al inventory
 	if err := c.Bind(&inventory); err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "Input invalido"})
 	}
 
-	// Valida la existencia del campo del nombre
 	if strings.TrimSpace(inventory.Name) == "" {
 		return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "El nombre es obligatorio"})
 	}
 
-	// Valida la existencia de objetos
 	if inventory.Objects == nil || len(inventory.Objects) == 0 {
 		return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "Los objetos son obligatorios"})
 	}
 
-	// Valida la lista de objetos
-	for i, obj := range inventory.Objects {
-		// Valida el nombre del objeto
-		if strings.TrimSpace(obj.Name) == "" {
-			return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "El objeto en el indice " + strconv.Itoa(i) + " carece de nombre, es necesario asignarle nombre"})
-		}
+	// Generar nuevo ID para el inventario
+	inventory.ID = primitive.NewObjectID()
 
-		// Valida la descripcion del objeto
-		if strings.TrimSpace(obj.Description) == "" {
-			return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "El objeto en el indice " + strconv.Itoa(i) + " carece de descripcion, es necesario asignarle descripcion"})
+	for i := range inventory.Objects {
+		if strings.TrimSpace(inventory.Objects[i].Name) == "" {
+			return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "El objeto en el indice " + strconv.Itoa(i) + " carece de nombre"})
 		}
+		if strings.TrimSpace(inventory.Objects[i].Description) == "" {
+			return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "El objeto en el indice " + strconv.Itoa(i) + " carece de descripcion"})
+		}
+		// Generar nuevo ID para cada objeto
+		inventory.Objects[i].ID = primitive.NewObjectID()
 	}
 
-	// Valida la conexion a la coleccion
 	if Collection == nil {
 		return c.JSON(http.StatusNotFound, echo.Map{"data": nil, "status": http.StatusNotFound, "message": "Sin conexion a la colección"})
 	}
 
-	// Inserta el nuevo inventario a la base de datos
-	res, err := Collection.InsertOne(context.Background(), inventory)
-	// Valida si la operacion fue exitosa
+	_, err := Collection.InsertOne(context.Background(), inventory)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, echo.Map{"data": nil, "status": http.StatusInternalServerError, "message": err.Error()})
 	}
 
-	// Asigna el id generado del nuevo inventario insertado
-	inventory.ID = res.InsertedID.(bson.ObjectID)
-
 	return c.JSON(http.StatusCreated, inventory)
 }
-
 // Elimina un inventario
 func DeleteInventory(c echo.Context) error {
 	// Recupera el parametro de consulta el id
 	idParam := c.Param("id")
 
 	// Convierte el id en ObjectID
-	id, err := bson.ObjectIDFromHex(idParam)
+	id, err := primitive.ObjectIDFromHex(idParam)
 	// Valida si la operacion fue exitosa
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, echo.Map{"data": nil, "status": http.StatusBadRequest, "message": "Id invalido"})
