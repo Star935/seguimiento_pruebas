@@ -1,3 +1,4 @@
+```markdown
 # API de Inventarios - Seguimiento Corte 2
 
 Esta API permite la gestión de inventarios y objetos anidados usando Go, Echo y MongoDB.
@@ -13,10 +14,14 @@ Esta API permite la gestión de inventarios y objetos anidados usando Go, Echo y
 
 ```bash
 go run main.go
+```
+
+---
 
 ## Endpoints
 
 ### Obtener todos los inventarios
+
 **GET** `/inventories`  
 - **Descripción:** Lista todos los inventarios registrados.
 - **Respuesta:** `200 OK` con arreglo de inventarios.
@@ -24,6 +29,7 @@ go run main.go
 ---
 
 ### Obtener inventario por ID
+
 **GET** `/inventories/:id`  
 - **Descripción:** Devuelve un inventario por su ID.
 - **Parámetros de ruta:**  
@@ -36,12 +42,14 @@ go run main.go
 ---
 
 ### Crear inventario
+
 **POST** `/inventories`  
 - **Descripción:** Crea un nuevo inventario con al menos un objeto.
-- **Body JSON:**
+- **Cuerpo esperado (JSON):**
+
 ```json
 {
-  "name": "Inventario de laboratorio de ingenieria",
+  "name": "Inventario de laboratorio de ingeniería",
   "objects": [
     {
       "name": "Proyector",
@@ -53,3 +61,23 @@ go run main.go
     }
   ]
 }
+```
+
+- **Validaciones:**
+  - El campo `name` es obligatorio.
+  - El array `objects` debe tener al menos un elemento.
+  - Cada objeto debe incluir `name` y `description`.
+
+---
+
+### Eliminar inventario por ID
+
+**DELETE** `/inventories/:id`  
+- **Descripción:** Elimina un inventario por su ID.
+- **Parámetros de ruta:**  
+  - `id` (string): ID del inventario.
+- **Respuestas:**  
+  - `204 No Content` si se elimina correctamente.  
+  - `400 Bad Request` si el ID es inválido.  
+  - `404 Not Found` si el inventario no existe.
+```
