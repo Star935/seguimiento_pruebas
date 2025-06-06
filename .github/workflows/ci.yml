@@ -1,9 +1,10 @@
-name: CI Go Inventory App
+name: CI - Go Inventory App
 
 on:
   push:
     branches: [ master ]
   pull_request:
+    branches: [ master ]
 
 jobs:
   test:
@@ -14,17 +15,12 @@ jobs:
         image: mongo:6
         ports:
           - 27017:27017
-        options: >-
-          --health-cmd="mongo --eval 'db.runCommand({ ping: 1 })'"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
 
     steps:
-      - name: Checkout código
+      - name: Clonar repositorio
         uses: actions/checkout@v4
 
-      - name: Configurar Go
+      - name: Instalar Go
         uses: actions/setup-go@v5
         with:
           go-version: 1.21
@@ -32,20 +28,7 @@ jobs:
       - name: Instalar dependencias
         run: go mod tidy
 
-      - name: Esperar a MongoDB
+      - name: Ejecutar pruebas
         run: |
-          echo "Esperando que MongoDB esté listo..."
-          for i in {1..10}; do
-            if mongosh --quiet --eval "db.stats()" --host localhost:27017; then
-              echo "Mongo está listo."
-              break
-            fi
-            sleep 2
-          done
-
-      - name: Ejecutar TODAS las pruebas (unitarias + integración + E2E)
-        run: go test ./tests/... -v
-
-      - name: Mensaje final si todo pasó
-        if: ${{ success() }}
-        run: echo "✅ DEPLOYMENT APPROVED - ALL TESTS SUCCESSFUL!"
+          go test ./tests/... -v
+          echo "✅ DEPLOYMENT APPROVED - ALL TESTS SUCCESSFUL!"
